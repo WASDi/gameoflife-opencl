@@ -11,9 +11,9 @@ import java.util.concurrent.Executors;
 
 public class GameOfLifeGUI extends JFrame implements ActionListener {
 
-    private static final int FIELD_SIZE_X = 64;
-    private static final int FIELD_SIZE_Y = 64;
-    private static final int PIXEL_SIZE = 8;
+    private static final int FIELD_SIZE_X = 32;
+    private static final int FIELD_SIZE_Y = 32;
+    private static final int PIXEL_SIZE = 14;
     private static final int IMAGE_SIZE_X = FIELD_SIZE_X * PIXEL_SIZE;
     private static final int IMAGE_SIZE_Y = FIELD_SIZE_Y * PIXEL_SIZE;
     private static final String TITLE = "Game Of Life";

@@ -1,17 +1,15 @@
+#define LOCAL_SIZE 16
+
 __inline int shouldIBeAlive(int currentStatus, int aliveNeighbours) {
     return aliveNeighbours == 3 || (currentStatus == 1 && aliveNeighbours == 2);
 }
 
-private int getPixelIndex(int x, int y, int sizeX, int sizeY) {
-    int xPos = (x + sizeX) % sizeX;
-    int yPos = (y + sizeY) % sizeY;
-    return yPos*sizeX + xPos; //0.290 ms
-    //return y * sizeX + x; //0.153 ms
-    //Om man kör LOKALT är det väl alltid mod 16 och då är det bara &15 = dubbel prestanda!
+int getPixelIndex(int x, int y) {
+    return ((y&15)*LOCAL_SIZE + (x&15));
 }
 
 __kernel void game_step(
-    __global int *input,
+    __global int *global_input,
     __global int *output,
     int sizeX,
     int sizeY)
@@ -19,19 +17,26 @@ __kernel void game_step(
     int x = get_global_id(0);
     int y = get_global_id(1);
 
+    int local_x = get_local_id(0);
+    int local_y = get_local_id(1);
+
+    __local int local_input[LOCAL_SIZE*LOCAL_SIZE];
+    local_input[local_y*LOCAL_SIZE + local_x] = global_input[y*sizeX + x];
+    barrier(CLK_LOCAL_MEM_FENCE);
+
     int aliveNeighbours = 0;
-    int currentStatus = input[y*sizeX + x];
+    int currentStatus = local_input[local_y*LOCAL_SIZE + local_x];
 
-    aliveNeighbours += input[getPixelIndex(x - 1, y - 1, sizeX, sizeY)];
-    aliveNeighbours += input[getPixelIndex(x, y - 1, sizeX, sizeY)];
-    aliveNeighbours += input[getPixelIndex(x + 1, y - 1, sizeX, sizeY)];
+    aliveNeighbours += local_input[getPixelIndex(local_x - 1, local_y - 1)];
+    aliveNeighbours += local_input[getPixelIndex(local_x, local_y - 1)];
+    aliveNeighbours += local_input[getPixelIndex(local_x + 1, local_y - 1)];
 
-    aliveNeighbours += input[getPixelIndex(x - 1, y, sizeX, sizeY)];
-    aliveNeighbours += input[getPixelIndex(x + 1, y, sizeX, sizeY)];
+    aliveNeighbours += local_input[getPixelIndex(local_x - 1, local_y)];
+    aliveNeighbours += local_input[getPixelIndex(local_x + 1, local_y)];
 
-    aliveNeighbours += input[getPixelIndex(x - 1, y + 1, sizeX, sizeY)];
-    aliveNeighbours += input[getPixelIndex(x, y + 1, sizeX, sizeY)];
-    aliveNeighbours += input[getPixelIndex(x + 1, y + 1, sizeX, sizeY)];
+    aliveNeighbours += local_input[getPixelIndex(local_x - 1, local_y + 1)];
+    aliveNeighbours += local_input[getPixelIndex(local_x, local_y + 1)];
+    aliveNeighbours += local_input[getPixelIndex(local_x + 1, local_y + 1)];
 
     output[y*sizeX + x] = shouldIBeAlive(currentStatus, aliveNeighbours);
 }
