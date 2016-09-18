@@ -30,8 +30,8 @@ public class WarpImpl extends OpenCLBase {
         outputImage = createOutputImage(outputHostImage);
     }
 
-    protected long[] getGlobalWorkSize() {
-        return new long[]{inputImage.getSizeX(), inputImage.getSizeY()};
+    protected long[][] getGlobalWorkSizePerKernel() {
+        return new long[][]{{inputImage.getSizeX(), inputImage.getSizeY()}};
     }
 
     @Override

@@ -15,6 +15,7 @@ public enum KernelFile {
     MAGIC_DOTS("magic_dots.cl", "magic_dots"),
     WARP("warp.cl", "warp"),
     GAME_OF_LIFE_UNOPTIMIZED("game_of_life_unoptimized.cl", "game_step", "render_image"),
+    GAME_OF_LIFE("game_of_life_local.cl", "game_step", "render_image"),
     ROTATE_IMAGE("rotateImage.cl", "rotateImage");
 
     public final String fileName;

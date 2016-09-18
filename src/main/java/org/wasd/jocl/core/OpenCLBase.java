@@ -7,7 +7,6 @@
 package org.wasd.jocl.core;
 
 import org.jocl.*;
-import org.jocl.samples.ExecutionStatistics;
 import org.wasd.Util;
 import org.wasd.jocl.wrappers.image.OpenCLImageFactory;
 import org.wasd.jocl.wrappers.image.OpenCLInputImage;
@@ -28,8 +27,8 @@ public abstract class OpenCLBase implements OpenCL {
     private cl_context clContext;
     private cl_command_queue clCommandQueue;
     private cl_kernel[] clKernels;
-    private long[] globalWorkSize;
-    private long[] localWorkSize;
+    private long[][] globalWorkSizePerKernel;
+    private long[][] localWorkSizePerKernel;
     private KernelArgumentSetter[] argumentSetters;
 
 
@@ -41,8 +40,8 @@ public abstract class OpenCLBase implements OpenCL {
     public void init() {
         initCL();
         afterInitCL();
-        globalWorkSize = getGlobalWorkSize();
-        localWorkSize = getLocalWorkSize();
+        globalWorkSizePerKernel = getGlobalWorkSizePerKernel();
+        localWorkSizePerKernel = getLocalWorkSizePerKernel();
 
         argumentSetters = new KernelArgumentSetter[clKernels.length];
         for (int i = 0; i < clKernels.length; i++) {
@@ -52,10 +51,10 @@ public abstract class OpenCLBase implements OpenCL {
 
     protected abstract void afterInitCL();
 
-    protected abstract long[] getGlobalWorkSize();
+    protected abstract long[][] getGlobalWorkSizePerKernel();
 
-    protected long[] getLocalWorkSize() {
-        return null;
+    protected long[][] getLocalWorkSizePerKernel() {
+        return new long[][]{};
     }
 
     protected abstract void beforeExecute(int kernelIndex);
@@ -73,8 +72,8 @@ public abstract class OpenCLBase implements OpenCL {
 
         Optional<cl_event> kernelEvent = getEventIfUseProfiling();
 
-        clEnqueueNDRangeKernel(clCommandQueue, clKernels[kernelIndex], globalWorkSize.length, null,
-                globalWorkSize, localWorkSize, 0, null, kernelEvent.orElse(null));
+        clEnqueueNDRangeKernel(clCommandQueue, clKernels[kernelIndex], globalWorkSizePerKernel[kernelIndex].length, null,
+                globalWorkSizePerKernel[kernelIndex], localWorkSizePerKernel[kernelIndex], 0, null, kernelEvent.orElse(null));
 
         printTimingIfPresent("kernel_" + kernelIndex, kernelEvent);
 

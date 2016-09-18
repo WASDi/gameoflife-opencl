@@ -17,6 +17,7 @@ public class GameOfLifeOpenCL extends OpenCLBase implements GameOfLife {
 
     private static final int STEP_KERNEL = 0;
     private static final int RENDER_KERNEL = 1;
+    private static final int LOCAL_SIZE = 16;
 
     private final int fieldSizeX;
     private final int fieldSizeY;
@@ -29,7 +30,7 @@ public class GameOfLifeOpenCL extends OpenCLBase implements GameOfLife {
 
     public GameOfLifeOpenCL(int fieldSizeX, int fieldSizeY, int pixelSize,
                             Optional<InitialFieldSetter> initialFieldSetter) {
-        super(KernelFile.GAME_OF_LIFE_UNOPTIMIZED, false);
+        super(KernelFile.GAME_OF_LIFE, false);
         this.fieldSizeX = fieldSizeX;
         this.fieldSizeY = fieldSizeY;
         this.initialFieldSetter = initialFieldSetter;
@@ -40,7 +41,7 @@ public class GameOfLifeOpenCL extends OpenCLBase implements GameOfLife {
 
     @Override
     public void step() {
-        int stepsPerStep = 100;
+        int stepsPerStep = 1;
         for (int i = 0; i < stepsPerStep; i++) {
             execute(STEP_KERNEL);
         }
@@ -85,15 +86,17 @@ public class GameOfLifeOpenCL extends OpenCLBase implements GameOfLife {
     }
 
     @Override
-    protected long[] getGlobalWorkSize() {
-        return new long[]{fieldSizeX, fieldSizeY};
+    protected long[][] getGlobalWorkSizePerKernel() {
+        long[] kernel1 = new long[]{fieldSizeX, fieldSizeY}; //FIXME
+        long[] kernel2 = new long[]{fieldSizeX, fieldSizeY};
+        return new long[][]{kernel1, kernel2};
     }
 
     @Override
-    protected long[] getLocalWorkSize() {
+    protected long[][] getLocalWorkSizePerKernel() {
         //bästaste lösningen https://www.olcf.ornl.gov/tutorials/opencl-game-of-life/
-        //Alltså, skicka in större global size än vad som behövs. Men en local group uppdaterar 2 mindre per row/col
-        return super.getLocalWorkSize();
+        long[] kernel1 = new long[]{LOCAL_SIZE, LOCAL_SIZE};
+        return new long[][]{kernel1, null};
     }
 
     @Override
