@@ -87,7 +87,7 @@ public class GameOfLifeOpenCL extends OpenCLBase implements GameOfLife {
 
     @Override
     protected long[][] getGlobalWorkSizePerKernel() {
-        long[] kernel1 = new long[]{fieldSizeX, fieldSizeY}; //FIXME
+        long[] kernel1 = new long[]{fieldSizeX, fieldSizeY};
         long[] kernel2 = new long[]{fieldSizeX, fieldSizeY};
         return new long[][]{kernel1, kernel2};
     }
