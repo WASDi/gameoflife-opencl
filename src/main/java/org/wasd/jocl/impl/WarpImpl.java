@@ -51,7 +51,7 @@ public class WarpImpl extends OpenCLBase {
 
     @Override
     protected void beforeExecute(int kernelIndex) {
-        step += 0.1f;
+        step += 0.01f;
 
         KernelArgumentSetter argumentSetter = resetAndGetArgumentSetter(kernelIndex);
         argumentSetter.setArgMemObject(inputImage);

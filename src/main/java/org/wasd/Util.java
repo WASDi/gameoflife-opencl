@@ -45,4 +45,23 @@ public class Util {
         return endTime[0] - startTime[0];
     }
 
+    public static boolean imagesEqual(BufferedImage imgA, BufferedImage imgB) {
+        if (imgA.getWidth() == imgB.getWidth() && imgA.getHeight() == imgB.getHeight()) {
+            int width = imgA.getWidth();
+            int height = imgA.getHeight();
+
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    if (imgA.getRGB(x, y) != imgB.getRGB(x, y)) {
+                        return false;
+                    }
+                }
+            }
+        } else {
+            return false;
+        }
+
+        return true;
+    }
+
 }

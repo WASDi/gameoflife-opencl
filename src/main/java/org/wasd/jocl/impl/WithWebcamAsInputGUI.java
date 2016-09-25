@@ -1,15 +1,11 @@
 package org.wasd.jocl.impl;
 
-import com.github.sarxos.webcam.Webcam;
-import com.github.sarxos.webcam.WebcamResolution;
+import org.wasd.Util;
 import org.wasd.WebcamPictureTaker;
-import org.wasd.jocl.core.OpenCL;
-import org.wasd.jocl.impl.WarpImpl;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.List;
 import java.util.concurrent.Executors;
 
 public class WithWebcamAsInputGUI {
@@ -19,17 +15,21 @@ public class WithWebcamAsInputGUI {
     private final BufferedImage inputImage;
     private final BufferedImage outputImage;
     private final WarpImpl openCLApplication;
-    private final WebcamPictureTaker webcam;
+    private final WebcamPictureTaker webcamPictureTaker;
+
+    private final JLabel inputLabel;
+    private final JLabel outputLabel;
 
     public WithWebcamAsInputGUI() {
-        webcam = WebcamPictureTaker.INSTANCE;
-        inputImage = webcam.getFreshImage();
+        webcamPictureTaker = WebcamPictureTaker.INSTANCE;
+        webcamPictureTaker.makeFreshImage();
+        inputImage = webcamPictureTaker.getLatestImage();
         outputImage = new BufferedImage(inputImage.getWidth(), inputImage.getHeight(), BufferedImage.TYPE_INT_RGB);
 
         JPanel mainPanel = new JPanel(new GridLayout(1, 0));
-        JLabel inputLabel = new JLabel(new ImageIcon(inputImage));
+        inputLabel = new JLabel(new ImageIcon(inputImage));
         mainPanel.add(inputLabel, BorderLayout.CENTER);
-        JLabel outputLabel = new JLabel(new ImageIcon(outputImage));
+        outputLabel = new JLabel(new ImageIcon(outputImage));
         mainPanel.add(outputLabel, BorderLayout.CENTER);
 
         JFrame frame = new JFrame("WASD OpenCL GUI");
@@ -41,15 +41,17 @@ public class WithWebcamAsInputGUI {
 
         openCLApplication = new WarpImpl(inputImage, outputImage);
         openCLApplication.init();
-        startAnimation(outputLabel);
+        startAnimation();
     }
 
-    private void startAnimation(final Component outputComponent) {
+    private void startAnimation() {
         System.out.println("Starting animation...");
+
+        Executors.newSingleThreadExecutor().submit(webcamPictureTaker);
 
         Executors.newSingleThreadExecutor().submit(() -> {
             openCLApplication.execute();
-            outputComponent.repaint();
+            outputLabel.repaint();
 
             while (true) {
                 try {
@@ -58,12 +60,27 @@ public class WithWebcamAsInputGUI {
                     Thread.currentThread().interrupt();
                     return;
                 }
-
-                openCLApplication.updateInputImage(webcam.getFreshImage());
+                boolean wasUpdated = updateInputImage();
+                if (wasUpdated) {
+                    openCLApplication.updateInputImage(inputImage);
+                }
                 openCLApplication.execute();
-                outputComponent.repaint();
+
+                if (wasUpdated) {
+                    inputLabel.repaint();
+                }
+                outputLabel.repaint();
             }
         });
+    }
+
+    private boolean updateInputImage() {
+        BufferedImage webcamImage = webcamPictureTaker.getLatestImage();
+        if (Util.imagesEqual(webcamImage, inputImage)) {
+            return false;
+        }
+        inputImage.getGraphics().drawImage(webcamImage, 0, 0, null);
+        return true;
     }
 
     public static void main(String args[]) {

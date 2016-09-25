@@ -1,5 +1,5 @@
 #define SHRINK 5
-#define WEIGHT 0.2f
+#define WEIGHT 0.4f
 
 const sampler_t samplerIn =
     CLK_NORMALIZED_COORDS_FALSE |
