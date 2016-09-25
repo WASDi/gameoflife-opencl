@@ -14,6 +14,7 @@ import org.wasd.jocl.wrappers.OpenCLMemObject;
 import org.wasd.jocl.wrappers.image.OpenCLOutputImage;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 import java.util.Optional;
 
 import static org.jocl.CL.*;
@@ -114,8 +115,25 @@ public abstract class OpenCLBase implements OpenCL {
 
     protected void writeIntBuffer(OpenCLMemObject memObject, int[] buffer) {
         clEnqueueWriteBuffer(clCommandQueue, memObject.getPrimitiveMemObject(),
-                CL_TRUE, 0, buffer.length * Sizeof.cl_int,
+                CL_BLOCKING, 0, buffer.length * Sizeof.cl_int,
                 Pointer.to(buffer), 0, null, null);
+    }
+
+    protected void writeImage(OpenCLMemObject memObject, BufferedImage newImageData) {
+        if (memObject.getSizeX() != newImageData.getWidth() || memObject.getSizeY() != newImageData.getHeight()) {
+            throw new IllegalArgumentException("must update image with same resolution");
+        }
+        DataBufferInt dataBufferSrc =
+                (DataBufferInt) newImageData.getRaster().getDataBuffer();
+        int dataSrc[] = dataBufferSrc.getData();
+
+        long[] origin = {0, 0, 0};
+        long[] region = {memObject.getSizeX(), memObject.getSizeY(), 1};
+        int rowPitch = memObject.getSizeX() * Sizeof.cl_uint;
+        CL.clEnqueueWriteImage(
+                clCommandQueue, memObject.getPrimitiveMemObject(),
+                CL_NON_BLOCKING, origin, region,
+                rowPitch, 0, Pointer.to(dataSrc), 0, null, null);
     }
 
     protected int[] readIntBuffer(OpenCLMemObject memObject) {
@@ -123,7 +141,7 @@ public abstract class OpenCLBase implements OpenCL {
 
         int[] buffer = new int[memObject.getSizeX() * memObject.getSizeY()];
         clEnqueueReadBuffer(clCommandQueue, memObject.getPrimitiveMemObject(),
-                CL_TRUE, 0, buffer.length * Sizeof.cl_int,
+                CL_BLOCKING, 0, buffer.length * Sizeof.cl_int,
                 Pointer.to(buffer), 0, null, readEvent.orElse(null));
 
         printTimingIfPresent("read", readEvent);

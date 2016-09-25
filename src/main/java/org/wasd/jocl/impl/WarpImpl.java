@@ -1,6 +1,5 @@
 package org.wasd.jocl.impl;
 
-import org.jocl.CL;
 import org.wasd.jocl.core.KernelArgumentSetter;
 import org.wasd.jocl.core.KernelFile;
 import org.wasd.jocl.core.OpenCLBase;
@@ -8,7 +7,6 @@ import org.wasd.jocl.wrappers.image.OpenCLInputImage;
 import org.wasd.jocl.wrappers.image.OpenCLOutputImage;
 
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
 
 public class WarpImpl extends OpenCLBase {
 
@@ -32,17 +30,8 @@ public class WarpImpl extends OpenCLBase {
         outputImage = createOutputImage(outputHostImage);
     }
 
-    public void updateInputImage(BufferedImage image) {
-        //FIXME Why does this not work?
-//        if (inputImage.getSizeX() != image.getWidth() || inputImage.getSizeY() != image.getHeight()) {
-//            throw new IllegalArgumentException("must update image with same resolution");
-//        }
-//        DataBufferInt dataBufferSrc =
-//                (DataBufferInt) image.getRaster().getDataBuffer();
-//        int dataSrc[] = dataBufferSrc.getData();
-//        writeIntBuffer(inputImage, dataSrc);
-        CL.clReleaseMemObject(inputImage.getPrimitiveMemObject());
-        inputImage = createInputImage(image);
+    public void updateInputImage(BufferedImage newImageData) {
+        writeImage(inputImage, newImageData);
     }
 
     protected long[][] getGlobalWorkSizePerKernel() {
