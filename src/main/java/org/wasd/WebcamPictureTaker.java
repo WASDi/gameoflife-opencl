@@ -11,6 +11,7 @@ public class WebcamPictureTaker implements Runnable {
     public static final WebcamPictureTaker INSTANCE = new WebcamPictureTaker();
 
     private final Webcam webcam;
+    private boolean hasNewImage = false;
     private BufferedImage latestImage;
 
     private WebcamPictureTaker() {
@@ -25,21 +26,30 @@ public class WebcamPictureTaker implements Runnable {
         System.out.println("webcam open");
     }
 
-    public BufferedImage getLatestImage() {
+    public BufferedImage getNewImageOrNull() {
+        if (!hasNewImage) {
+            return null;
+        }
+        hasNewImage = false;
         return latestImage;
     }
 
-    public void makeFreshImage() {
+    public void makeFreshImage(boolean transformType) {
         BufferedImage webcamImage = webcam.getImage();
-        BufferedImage freshImage = new BufferedImage(webcamImage.getWidth(), webcamImage.getHeight(), BufferedImage.TYPE_INT_RGB);
-        freshImage.getGraphics().drawImage(webcamImage, 0, 0, null);
-        latestImage = freshImage;
+        if (transformType) {
+            BufferedImage transformedType = new BufferedImage(webcamImage.getWidth(), webcamImage.getHeight(), BufferedImage.TYPE_INT_RGB);
+            transformedType.getGraphics().drawImage(webcamImage, 0, 0, null);
+            latestImage = transformedType;
+        } else {
+            latestImage = webcamImage;
+        }
+        hasNewImage = true;
     }
 
     @Override
     public void run() {
         while (true) {
-            makeFreshImage();
+            makeFreshImage(false);
 
 //            try {
 //                Thread.sleep(1000);

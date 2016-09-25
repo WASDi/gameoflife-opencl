@@ -105,7 +105,7 @@ public abstract class OpenCLBase implements OpenCL {
         Optional<cl_event> readEvent = getEventIfUseProfiling();
 
         clEnqueueReadImage(
-                clCommandQueue, outputImage.getPrimitiveMemObject(), true, new long[3],
+                clCommandQueue, outputImage.getPrimitiveMemObject(), CL_BLOCKING, new long[3],
                 new long[]{outputImage.getSizeX(), outputImage.getSizeY(), 1},
                 outputImage.getSizeX() * Sizeof.cl_uint, 0,
                 outputImage.getPointerToHostImage(), 0, null, readEvent.orElse(null));

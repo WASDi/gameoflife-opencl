@@ -22,8 +22,8 @@ public class WithWebcamAsInputGUI {
 
     public WithWebcamAsInputGUI() {
         webcamPictureTaker = WebcamPictureTaker.INSTANCE;
-        webcamPictureTaker.makeFreshImage();
-        inputImage = webcamPictureTaker.getLatestImage();
+        webcamPictureTaker.makeFreshImage(true);
+        inputImage = webcamPictureTaker.getNewImageOrNull();
         outputImage = new BufferedImage(inputImage.getWidth(), inputImage.getHeight(), BufferedImage.TYPE_INT_RGB);
 
         JPanel mainPanel = new JPanel(new GridLayout(1, 0));
@@ -72,11 +72,12 @@ public class WithWebcamAsInputGUI {
     }
 
     private boolean updateInputImage() {
-        BufferedImage webcamImage = webcamPictureTaker.getLatestImage();
-        if (Util.imagesEqual(webcamImage, inputImage)) {
+        BufferedImage webcamImage = webcamPictureTaker.getNewImageOrNull();
+        if (webcamImage == null) {
             return false;
         }
         inputImage.getGraphics().drawImage(webcamImage, 0, 0, null);
+        //FIXME ovan tar 30ms, gånger 4 fps. 19% CPU med, 14% utan. Behövs ej om kerneln klarar rawformatet
         return true;
     }
 
