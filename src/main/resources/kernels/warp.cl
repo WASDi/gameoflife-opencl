@@ -30,10 +30,10 @@ __kernel void warp(
     float euclidean_dist = sqrt(euclidean_dist_2);
 
     //GAUSSIAN
-    float weight = WEIGHT * exp2(-euclidean_dist_2) * cos(step*5);
+    //float weight = WEIGHT * exp2(-euclidean_dist_2) * cos(step*5);
 
     //SIN^2
-    //float weight = sin(euclidean_dist * euclidean_dist * 20);
+    float weight = sin(euclidean_dist * 15 - step) * 0.07f + sin(step*0.1f)*0.2f;
     //weight = weight * weight * (0.01f - cos(step)*0.01f);
 
     //SIN(x^x)

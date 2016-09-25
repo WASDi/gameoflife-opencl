@@ -50,16 +50,7 @@ public class WithWebcamAsInputGUI {
         Executors.newSingleThreadExecutor().submit(webcamPictureTaker);
 
         Executors.newSingleThreadExecutor().submit(() -> {
-            openCLApplication.execute();
-            outputLabel.repaint();
-
             while (true) {
-                try {
-                    Thread.sleep(SLEEP_PER_FRAME);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    return;
-                }
                 boolean wasUpdated = updateInputImage();
                 if (wasUpdated) {
                     openCLApplication.updateInputImage(inputImage);
@@ -70,6 +61,12 @@ public class WithWebcamAsInputGUI {
                     inputLabel.repaint();
                 }
                 outputLabel.repaint();
+                try {
+                    Thread.sleep(SLEEP_PER_FRAME);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
             }
         });
     }

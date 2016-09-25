@@ -11,7 +11,7 @@ public class WebcamPictureTaker implements Runnable {
     public static final WebcamPictureTaker INSTANCE = new WebcamPictureTaker();
 
     private final Webcam webcam;
-    private volatile BufferedImage latestImage;
+    private BufferedImage latestImage;
 
     private WebcamPictureTaker() {
         List<Webcam> webcams = Webcam.getWebcams();

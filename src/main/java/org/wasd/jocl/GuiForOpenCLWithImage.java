@@ -17,7 +17,7 @@ public class GuiForOpenCLWithImage {
     private final OpenCL openCLApplication;
 
     public GuiForOpenCLWithImage() {
-        String fileName = "duck_large.jpg";
+        String fileName = "duck640.jpg";
 
         inputImage = Util.createBufferedImage(fileName);
         outputImage = new BufferedImage(inputImage.getWidth(), inputImage.getHeight(), BufferedImage.TYPE_INT_RGB);
