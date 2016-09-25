@@ -54,7 +54,7 @@ public abstract class OpenCLBase implements OpenCL {
     protected abstract long[][] getGlobalWorkSizePerKernel();
 
     protected long[][] getLocalWorkSizePerKernel() {
-        return new long[][]{};
+        return new long[][]{null};
     }
 
     protected abstract void beforeExecute(int kernelIndex);
@@ -202,6 +202,7 @@ public abstract class OpenCLBase implements OpenCL {
 
         System.out.println("Building program...");
         clBuildProgram(program, 0, null, null, null, null);
+        //TODO kolla upp "mad-enable" osv https://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clBuildProgram.html
 
         System.out.println("Creating kernel(s)...");
 

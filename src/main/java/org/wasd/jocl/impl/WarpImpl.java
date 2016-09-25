@@ -7,6 +7,7 @@ import org.wasd.jocl.wrappers.image.OpenCLInputImage;
 import org.wasd.jocl.wrappers.image.OpenCLOutputImage;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 
 public class WarpImpl extends OpenCLBase {
 
@@ -19,7 +20,7 @@ public class WarpImpl extends OpenCLBase {
     private float step = 0f;
 
     public WarpImpl(BufferedImage inputImage, BufferedImage outputImage) {
-        super(KernelFile.WARP, true);
+        super(KernelFile.WARP, false);
         this.inputHostImage = inputImage;
         this.outputHostImage = outputImage;
     }
@@ -28,6 +29,16 @@ public class WarpImpl extends OpenCLBase {
     public void afterInitCL() {
         inputImage = createInputImage(inputHostImage);
         outputImage = createOutputImage(outputHostImage);
+    }
+
+    public void updateInputImage(BufferedImage image) {
+        if (inputImage.getSizeX() != image.getWidth() || inputImage.getSizeY() != image.getHeight()) {
+            throw new IllegalArgumentException("must update image with same resolution");
+        }
+        DataBufferInt dataBufferSrc =
+                (DataBufferInt) image.getRaster().getDataBuffer();
+        int dataSrc[] = dataBufferSrc.getData();
+        writeIntBuffer(inputImage, dataSrc);
     }
 
     protected long[][] getGlobalWorkSizePerKernel() {

@@ -86,7 +86,7 @@ public class GameOfLifeGUI extends JFrame implements ActionListener {
 
     public static void main(String[] args) {
         boolean gpu = true;
-        //1000 körningar cpu = 32322ms
+        //1000 körningar cpu = 32322ms vid 960x960
         GameOfLife game;
         if (gpu) {
             game = new GameOfLifeOpenCL(FIELD_SIZE_X, FIELD_SIZE_Y, PIXEL_SIZE,
