@@ -18,8 +18,7 @@ public class Util {
         try {
             image = ImageIO.read(new File(fileName));
         } catch (IOException e) {
-            e.printStackTrace();
-            return null;
+            throw new RuntimeException(e);
         }
 
         int sizeX = image.getWidth();

@@ -1,5 +1,6 @@
 package org.wasd.jocl.impl;
 
+import org.jocl.CL;
 import org.wasd.jocl.core.KernelArgumentSetter;
 import org.wasd.jocl.core.KernelFile;
 import org.wasd.jocl.core.OpenCLBase;
@@ -32,13 +33,16 @@ public class WarpImpl extends OpenCLBase {
     }
 
     public void updateInputImage(BufferedImage image) {
-        if (inputImage.getSizeX() != image.getWidth() || inputImage.getSizeY() != image.getHeight()) {
-            throw new IllegalArgumentException("must update image with same resolution");
-        }
-        DataBufferInt dataBufferSrc =
-                (DataBufferInt) image.getRaster().getDataBuffer();
-        int dataSrc[] = dataBufferSrc.getData();
-        writeIntBuffer(inputImage, dataSrc);
+        //FIXME Why does this not work?
+//        if (inputImage.getSizeX() != image.getWidth() || inputImage.getSizeY() != image.getHeight()) {
+//            throw new IllegalArgumentException("must update image with same resolution");
+//        }
+//        DataBufferInt dataBufferSrc =
+//                (DataBufferInt) image.getRaster().getDataBuffer();
+//        int dataSrc[] = dataBufferSrc.getData();
+//        writeIntBuffer(inputImage, dataSrc);
+        CL.clReleaseMemObject(inputImage.getPrimitiveMemObject());
+        inputImage = createInputImage(image);
     }
 
     protected long[][] getGlobalWorkSizePerKernel() {
@@ -47,12 +51,13 @@ public class WarpImpl extends OpenCLBase {
 
     @Override
     protected void beforeExecute(int kernelIndex) {
-        step += 0.01f;
+        step += 0.1f;
 
         KernelArgumentSetter argumentSetter = resetAndGetArgumentSetter(kernelIndex);
         argumentSetter.setArgMemObject(inputImage);
         argumentSetter.setArgMemObject(outputImage);
         argumentSetter.setArgInt(inputImage.getSizeX());
+        argumentSetter.setArgInt(inputImage.getSizeY());
         argumentSetter.setArgFloat(step);
     }
 

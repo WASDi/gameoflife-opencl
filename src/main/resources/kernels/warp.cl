@@ -9,13 +9,14 @@ const sampler_t samplerIn =
 __kernel void warp(
     __read_only  image2d_t sourceImage,
     __write_only image2d_t targetImage,
-    const int size,
+    const int sizeX,
+    const int sizeY,
     const float step)
 {
     int gidX = get_global_id(0);
     int gidY = get_global_id(1);
 
-    float2 pos = {((float)gidX)/size, ((float)gidY)/size};
+    float2 pos = {((float)gidX)/sizeX, ((float)gidY)/sizeY};
     //float2 target = {0.5f + cos(step)*0.25f,
     //                 0.5f + sin(step)*0.25f};
     float2 target = (float2){0.5f, 0.5f};
@@ -44,7 +45,7 @@ __kernel void warp(
     float x_from = pos.x + x_dist * weight;
     float y_from = pos.y + y_dist * weight;
 
-    int2 posIn = {(int)(x_from * size + 0.5f), (int)(y_from * size + 0.5f)}; //FIXME pixligt, gör AVG på pixlar eller annan teknik för zoom?
+    int2 posIn = {(int)(x_from * sizeX + 0.5f), (int)(y_from * sizeY + 0.5f)}; //FIXME pixligt, gör AVG på pixlar eller annan teknik för zoom?
     int2 posOut = {gidX, gidY};
 
     uint4 pixel = read_imageui(sourceImage, samplerIn, posIn);

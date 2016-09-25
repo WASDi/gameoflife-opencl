@@ -1,25 +1,29 @@
-package org.wasd.jocl;
+package org.wasd.jocl.impl;
 
-import org.wasd.Util;
+import com.github.sarxos.webcam.Webcam;
+import com.github.sarxos.webcam.WebcamResolution;
+import org.wasd.WebcamPictureTaker;
 import org.wasd.jocl.core.OpenCL;
 import org.wasd.jocl.impl.WarpImpl;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.List;
+import java.util.concurrent.Executors;
 
-public class GuiForOpenCLWithImage {
+public class WithWebcamAsInputGUI {
 
     private static final int SLEEP_PER_FRAME = 16;
 
     private final BufferedImage inputImage;
     private final BufferedImage outputImage;
-    private final OpenCL openCLApplication;
+    private final WarpImpl openCLApplication;
+    private final WebcamPictureTaker webcam;
 
-    public GuiForOpenCLWithImage() {
-        String fileName = "duck_large.jpg";
-
-        inputImage = Util.createBufferedImage(fileName);
+    public WithWebcamAsInputGUI() {
+        webcam = WebcamPictureTaker.INSTANCE;
+        inputImage = webcam.getFreshImage();
         outputImage = new BufferedImage(inputImage.getWidth(), inputImage.getHeight(), BufferedImage.TYPE_INT_RGB);
 
         JPanel mainPanel = new JPanel(new GridLayout(1, 0));
@@ -43,26 +47,27 @@ public class GuiForOpenCLWithImage {
     private void startAnimation(final Component outputComponent) {
         System.out.println("Starting animation...");
 
-        //ExecutorService?
-        Thread thread = new Thread(() -> {
-            while (true) {
-                openCLApplication.execute();
-                outputComponent.repaint();
+        Executors.newSingleThreadExecutor().submit(() -> {
+            openCLApplication.execute();
+            outputComponent.repaint();
 
+            while (true) {
                 try {
                     Thread.sleep(SLEEP_PER_FRAME);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     return;
                 }
+
+                openCLApplication.updateInputImage(webcam.getFreshImage());
+                openCLApplication.execute();
+                outputComponent.repaint();
             }
         });
-        thread.setDaemon(true);
-        thread.start();
     }
 
     public static void main(String args[]) {
-        SwingUtilities.invokeLater(GuiForOpenCLWithImage::new);
+        SwingUtilities.invokeLater(WithWebcamAsInputGUI::new);
     }
 
 }
