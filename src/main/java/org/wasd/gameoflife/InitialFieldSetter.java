@@ -9,7 +9,7 @@ public class InitialFieldSetter {
 
     public void setFor(boolean[][] field) {
         long seed = System.nanoTime();
-//        seed = 1337;
+        seed = 1337;
         Random r = new Random(seed);
         logger.info("Seed: " + seed);
         for (int x = 0; x < field.length; x++) {

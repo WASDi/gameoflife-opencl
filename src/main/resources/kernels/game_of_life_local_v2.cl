@@ -14,7 +14,7 @@ int getGlobalPixelIndex(int x, int y, int sizeX, int sizeY) {
 }
 
 int getLocalPixelIndex(int x, int y) {
-    return y*LOCAL_BOUNDARY + x;
+    return y*LOCAL_ACTUAL_SIZE + x;
 }
 
 __kernel void game_step(
@@ -27,7 +27,7 @@ __kernel void game_step(
     int y = get_global_id(1) - 2 * get_group_id(1) - 1;
 
     int group_x_start = get_group_id(0) * LOCAL_CELL_SIZE;
-    int group_y_start = get_group_id(1) * LOCAL_CELL_ SIZE;
+    int group_y_start = get_group_id(1) * LOCAL_CELL_SIZE;
 
     int local_x = get_local_id(0);
     int local_y = get_local_id(1);

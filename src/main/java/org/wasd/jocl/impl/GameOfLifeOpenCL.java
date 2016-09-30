@@ -15,6 +15,8 @@ import java.util.Optional;
 
 public class GameOfLifeOpenCL extends OpenCLBase implements GameOfLife {
 
+    private static final boolean V2 = true;
+
     private static final int STEP_KERNEL = 0;
     private static final int RENDER_KERNEL = 1;
     private static final int LOCAL_SIZE = 16;
@@ -30,7 +32,7 @@ public class GameOfLifeOpenCL extends OpenCLBase implements GameOfLife {
 
     public GameOfLifeOpenCL(int fieldSizeX, int fieldSizeY, int pixelSize,
                             Optional<InitialFieldSetter> initialFieldSetter) {
-        super(KernelFile.GAME_OF_LIFE, false);
+        super(V2 ? KernelFile.GAME_OF_LIFE_V2 : KernelFile.GAME_OF_LIFE, false);
         this.fieldSizeX = fieldSizeX;
         this.fieldSizeY = fieldSizeY;
         this.initialFieldSetter = initialFieldSetter;
@@ -88,14 +90,18 @@ public class GameOfLifeOpenCL extends OpenCLBase implements GameOfLife {
     @Override
     protected long[][] getGlobalWorkSizePerKernel() {
         long[] kernel1 = new long[]{fieldSizeX, fieldSizeY};
+        if (V2) {
+            kernel1[0] = globalSizeRequiredForV2(kernel1[0]);
+            kernel1[1] = globalSizeRequiredForV2(kernel1[1]);
+        }
         long[] kernel2 = new long[]{fieldSizeX, fieldSizeY};
         return new long[][]{kernel1, kernel2};
     }
 
-    private int globalSizeRequiredForV2(int fieldSize) {
+    private static long globalSizeRequiredForV2(long fieldSize) {
         int cellsPerLocalGroup = LOCAL_SIZE - 2;
         int localGroupsRequired = (int) Math.ceil((double) fieldSize / cellsPerLocalGroup);
-        int globalSize = localGroupsRequired * cellsPerLocalGroup;
+        int globalSize = localGroupsRequired * LOCAL_SIZE;
         return globalSize;
     }
 
