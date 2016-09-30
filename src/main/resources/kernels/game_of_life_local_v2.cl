@@ -13,6 +13,15 @@ int getGlobalPixelIndex(int x, int y, int sizeX, int sizeY) {
     return yPos*sizeX + xPos;
 }
 
+int getGlobalPixelIndex_v2(int x, int y, int sizeX, int sizeY) {
+    x = (x == -1) ? sizeX-1 : x;
+    y = (y == -1) ? sizeY-1 : y;
+
+    x = (x == sizeX) ? sizeX-1 : x;
+    y = (y == sizeY) ? sizeY-1 : y;
+    return y*sizeX + x;
+}
+
 int getLocalPixelIndex(int x, int y) {
     return y*LOCAL_ACTUAL_SIZE + x;
 }
@@ -33,17 +42,21 @@ __kernel void game_step(
     int local_y = get_local_id(1);
 
     __local int local_input[LOCAL_ACTUAL_SIZE*LOCAL_ACTUAL_SIZE];
-    local_input[getLocalPixelIndex(local_x, local_y)]
-        = global_input[getGlobalPixelIndex(group_x_start + local_x - 1,
-                                           group_y_start + local_y - 1,
-                                           sizeX,
-                                           sizeY)];
+
+    if(x <= sizeX && y <= sizeY){
+        local_input[getLocalPixelIndex(local_x, local_y)]
+                = global_input[getGlobalPixelIndex_v2(group_x_start + local_x - 1,
+                                                   group_y_start + local_y - 1,
+                                                   sizeX,
+                                                   sizeY)];
+    }
 
     barrier(CLK_LOCAL_MEM_FENCE);
 
     //index 0 and final doesn't process cells
     if(local_x != 0 && local_x != FINAL_LOCAL_INDEX &&
-       local_y != 0 && local_y != FINAL_LOCAL_INDEX){
+       local_y != 0 && local_y != FINAL_LOCAL_INDEX &&
+       x < sizeX && y < sizeY){
        int aliveNeighbours = 0;
        int currentStatus = local_input[getLocalPixelIndex(local_x, local_y)];
 

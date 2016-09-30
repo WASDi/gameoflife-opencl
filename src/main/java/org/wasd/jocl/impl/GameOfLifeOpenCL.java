@@ -37,7 +37,7 @@ public class GameOfLifeOpenCL extends OpenCLBase implements GameOfLife {
         this.fieldSizeY = fieldSizeY;
         this.initialFieldSetter = initialFieldSetter;
         this.pixelSize = pixelSize;
-
+        System.out.println("V2 == " + V2);
         init();
     }
 

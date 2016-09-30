@@ -86,7 +86,10 @@ public class GameOfLifeGUI extends JFrame implements ActionListener {
 
     public static void main(String[] args) {
         boolean gpu = true;
-        //1000 körningar cpu = 32322ms vid 960x960
+        //960x960, 100 körningar
+        //cpu = 32322ms
+        //v1 = 744ms
+        //v2 = 738ms
         GameOfLife game;
         if (gpu) {
             //bästaste lösningen https://www.olcf.ornl.gov/tutorials/opencl-game-of-life/
