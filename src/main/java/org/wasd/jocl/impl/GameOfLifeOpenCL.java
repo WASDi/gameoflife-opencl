@@ -72,17 +72,17 @@ public class GameOfLifeOpenCL extends OpenCLBase implements GameOfLife {
         OpenCLMemObject output = createMemObject(fieldSizeX, fieldSizeY, Sizeof.cl_int);
         fieldSwapper = new Swapper<>(input, output);
 
-        int[] buffer = new int[fieldSizeX * fieldSizeY];
+        byte[] buffer = new byte[fieldSizeX * fieldSizeY];
         if (initialFieldSetter.isPresent()) {
             boolean[][] field = new boolean[input.getSizeX()][input.getSizeY()];
             initialFieldSetter.get().setFor(field);
             for (int y = 0; y < field.length; y++) {
                 for (int x = 0; x < field[y].length; x++) {
-                    buffer[y * input.getSizeX() + x] = field[x][y] ? 1 : 0;
+                    buffer[y * input.getSizeX() + x] = (byte) (field[x][y] ? 1 : 0);
                 }
             }
         }
-        writeIntBuffer(input, buffer);
+        writeByteBuffer(input, buffer);
     }
 
     @Override

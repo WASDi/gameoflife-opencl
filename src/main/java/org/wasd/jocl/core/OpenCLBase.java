@@ -119,6 +119,12 @@ public abstract class OpenCLBase implements OpenCL {
                 Pointer.to(buffer), 0, null, null);
     }
 
+    protected void writeByteBuffer(OpenCLMemObject memObject, byte[] buffer) {
+        clEnqueueWriteBuffer(clCommandQueue, memObject.getPrimitiveMemObject(),
+                CL_BLOCKING, 0, buffer.length * Sizeof.cl_char,
+                Pointer.to(buffer), 0, null, null);
+    }
+
     protected void writeImage(OpenCLMemObject memObject, BufferedImage newImageData) {
         if (memObject.getSizeX() != newImageData.getWidth() || memObject.getSizeY() != newImageData.getHeight()) {
             throw new IllegalArgumentException("must update image with same resolution");

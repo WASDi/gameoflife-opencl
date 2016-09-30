@@ -16,8 +16,8 @@ int getLocalPixelIndex(int x, int y) {
 }
 
 __kernel void game_step(
-    __global int *global_input,
-    __global int *output,
+    __global char *global_input,
+    __global char *output,
     int sizeX,
     int sizeY)
 {
@@ -61,7 +61,7 @@ __kernel void game_step(
 }
 
 __kernel void render_image(
-    __global const int *input,
+    __global const char *input,
     __write_only image2d_t image,
     int sizeX,
     int pixelSize)
