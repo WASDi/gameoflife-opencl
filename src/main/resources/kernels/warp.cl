@@ -1,10 +1,17 @@
-#define SHRINK 5
-#define WEIGHT 0.4f
+#define SHRINK 1.0f
+#define WEIGHT 1.0f
 
 const sampler_t samplerIn =
     CLK_NORMALIZED_COORDS_FALSE |
     CLK_ADDRESS_CLAMP |
     CLK_FILTER_NEAREST;
+
+const sampler_t s_nearest = CLK_FILTER_NEAREST | CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP_TO_EDGE;
+const sampler_t s_linear = CLK_FILTER_LINEAR | CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP_TO_EDGE;
+const sampler_t s_repeat = CLK_FILTER_NEAREST | CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_REPEAT;
+
+const sampler_t wasdSampler = CLK_FILTER_LINEAR | CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP;
+//https://www.fixstars.com/en/opencl/book/OpenCLProgrammingBook/opencl-c/
 
 __kernel void warp(
     __read_only  image2d_t sourceImage,
@@ -30,10 +37,10 @@ __kernel void warp(
     float euclidean_dist = sqrt(euclidean_dist_2);
 
     //GAUSSIAN
-    //float weight = WEIGHT * exp2(-euclidean_dist_2) * cos(step*5);
+    float weight = WEIGHT * exp2(-euclidean_dist_2) * cos(step*1.0f);
 
     //SIN^2
-    float weight = sin(euclidean_dist * 15 - step) * 0.07f + sin(step*0.1f)*0.2f;
+    //float weight = sin(euclidean_dist * 15 - step) * 0.07f + sin(step*0.1f)*0.2f;
     //weight = weight * weight * (0.01f - cos(step)*0.01f);
 
     //SIN(x^x)
@@ -41,13 +48,13 @@ __kernel void warp(
     //float weight = sin(pow(euclidean_dist, euclidean_dist)) * 0.1f;
 
 
-    //TODO iterera över flera och bara addera ihop samtliga dist*weight?
     float x_from = pos.x + x_dist * weight;
     float y_from = pos.y + y_dist * weight;
 
-    int2 posIn = {(int)(x_from * sizeX + 0.5f), (int)(y_from * sizeY + 0.5f)}; //FIXME pixligt, gör AVG på pixlar eller annan teknik för zoom?
+    //int2 posIn = {(int)(x_from * sizeX + 0.5f), (int)(y_from * sizeY + 0.5f)};
+    float2 posInF = {x_from * sizeX , y_from * sizeY};
     int2 posOut = {gidX, gidY};
 
-    uint4 pixel = read_imageui(sourceImage, samplerIn, posIn);
+    uint4 pixel = read_imageui(sourceImage, wasdSampler, posInF);
     write_imageui(targetImage, posOut, pixel);
 }

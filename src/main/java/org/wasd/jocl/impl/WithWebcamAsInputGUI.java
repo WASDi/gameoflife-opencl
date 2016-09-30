@@ -77,7 +77,7 @@ public class WithWebcamAsInputGUI {
             return false;
         }
         inputImage.getGraphics().drawImage(webcamImage, 0, 0, null);
-        //FIXME ovan tar 30ms, gånger 4 fps. 19% CPU med, 14% utan. Behövs ej om kerneln klarar rawformatet
+        //FIXME ovan tar 30ms, gånger 4 fps. 19% CPU med, 14% utan. Behövs ej om kerneln klarar rawformatet!
         return true;
     }
 

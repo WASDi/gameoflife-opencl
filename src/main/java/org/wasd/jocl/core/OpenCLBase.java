@@ -100,7 +100,7 @@ public abstract class OpenCLBase implements OpenCL {
         return new OpenCLMemObject(sizeX, sizeY, primitiveMemObject);
     }
     //END creators
-
+    //BEGIN IO
     protected void readImage(OpenCLOutputImage outputImage) {
         Optional<cl_event> readEvent = getEventIfUseProfiling();
 
@@ -148,6 +148,9 @@ public abstract class OpenCLBase implements OpenCL {
 
         return buffer;
     }
+    //END IO
+    //TODO borde vara i nån OpenCLIO klass med this som konstruktorparameter för att hämta gojset
+    //new OpenCLIO(this).readWrite(...)
 
     private Optional<cl_event> getEventIfUseProfiling() {
         if (useProfiling) {
