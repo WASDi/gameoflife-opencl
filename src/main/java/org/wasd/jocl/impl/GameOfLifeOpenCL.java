@@ -92,10 +92,15 @@ public class GameOfLifeOpenCL extends OpenCLBase implements GameOfLife {
         return new long[][]{kernel1, kernel2};
     }
 
+    private int globalSizeRequiredForV2(int fieldSize) {
+        int cellsPerLocalGroup = LOCAL_SIZE - 2;
+        int localGroupsRequired = (int) Math.ceil((double) fieldSize / cellsPerLocalGroup);
+        int globalSize = localGroupsRequired * cellsPerLocalGroup;
+        return globalSize;
+    }
+
     @Override
     protected long[][] getLocalWorkSizePerKernel() {
-        //bästaste lösningen https://www.olcf.ornl.gov/tutorials/opencl-game-of-life/
-        //TODO nu ger vi upp, härma den! utan att kolla kanske!
         long[] kernel1 = new long[]{LOCAL_SIZE, LOCAL_SIZE};
         return new long[][]{kernel1, null};
     }

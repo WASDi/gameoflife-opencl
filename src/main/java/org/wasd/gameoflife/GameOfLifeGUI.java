@@ -89,6 +89,7 @@ public class GameOfLifeGUI extends JFrame implements ActionListener {
         //1000 körningar cpu = 32322ms vid 960x960
         GameOfLife game;
         if (gpu) {
+            //bästaste lösningen https://www.olcf.ornl.gov/tutorials/opencl-game-of-life/
             game = new GameOfLifeOpenCL(FIELD_SIZE_X, FIELD_SIZE_Y, PIXEL_SIZE,
                     Optional.of(new InitialFieldSetter()));
         } else {
