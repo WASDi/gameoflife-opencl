@@ -102,6 +102,7 @@ public class GameOfLifeOpenCL extends OpenCLBase implements GameOfLife {
         int cellsPerLocalGroup = LOCAL_SIZE - 2;
         int localGroupsRequired = (int) Math.ceil((double) fieldSize / cellsPerLocalGroup);
         int globalSize = localGroupsRequired * LOCAL_SIZE;
+        System.out.println("Work size... " + globalSize);
         return globalSize;
     }
 

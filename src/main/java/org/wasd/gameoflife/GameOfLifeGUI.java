@@ -86,12 +86,34 @@ public class GameOfLifeGUI extends JFrame implements ActionListener {
 
     public static void main(String[] args) {
         boolean gpu = true;
-        //960x960, 100 körningar
+        //960x960, 1000 körningar
         //cpu = 32322ms
-        //GPU = 1000+ms (no optimization)
-        //v1 = 744ms (local work groups)
-        //v2 = 733ms (one work item per memory instead of per cell)
-        //v2 = 456ms (remove modulo)
+        //GPU = 1000+ms (no optimization) (32x)
+        //v1 = 744ms (local work groups) (43x)
+        //v2 = 733ms (one work item per memory instead of per cell) (44x)
+        //v2 = 454ms (remove modulo) (71x)
+        //v3 = 630ms (with byte instead of int???)
+
+        //CPU = about 32ms per frame, 31fps
+        //best = about 0.45ms per frame, 2200fps
+
+        //BENCHMARKs
+        // without global memory read = 332ms
+        // without aliveNeighbours count = 356ms
+        //    without both = 341ms
+        //        AND ALSO without global memory write = 150ms
+        // without global memory write = 268ms
+        // empty step method but render image = 33ms
+        // ONLY read global to local = 367ms (-10 without barrier)
+        // ignore read global to local = 307ms
+
+        //Varför är byte/char långsammare?
+        //totalt = +176ms
+        //inläsning från global till local = speedup 26ms mindre
+        //utan global write = 276ms ungefär samma tid <-- boven?
+        //without aliveNeighbours count = 363, också ungefär samma <-- boven?
+        //Om de ovan blir ungefär samma med char, borde vara boven. För att ta bort dem ger större speedup
+        //Så det var de som tog störst extratid vid char
         GameOfLife game;
         if (gpu) {
             //bästaste lösningen https://www.olcf.ornl.gov/tutorials/opencl-game-of-life/
