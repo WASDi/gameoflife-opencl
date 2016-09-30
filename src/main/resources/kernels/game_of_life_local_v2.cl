@@ -7,18 +7,11 @@ __inline int shouldIBeAlive(int currentStatus, int aliveNeighbours) {
 }
 
 int getGlobalPixelIndex(int x, int y, int sizeX, int sizeY) {
-    //TODO replace modulo with ghost lines
-    int xPos = (x + sizeX) % sizeX;
-    int yPos = (y + sizeY) % sizeY;
-    return yPos*sizeX + xPos;
-}
-
-int getGlobalPixelIndex_v2(int x, int y, int sizeX, int sizeY) {
     x = (x == -1) ? sizeX-1 : x;
     y = (y == -1) ? sizeY-1 : y;
 
-    x = (x == sizeX) ? sizeX-1 : x;
-    y = (y == sizeY) ? sizeY-1 : y;
+    x = (x == sizeX) ? 0 : x;
+    y = (y == sizeY) ? 0 : y;
     return y*sizeX + x;
 }
 
@@ -45,7 +38,7 @@ __kernel void game_step(
 
     if(x <= sizeX && y <= sizeY){
         local_input[getLocalPixelIndex(local_x, local_y)]
-                = global_input[getGlobalPixelIndex_v2(group_x_start + local_x - 1,
+                = global_input[getGlobalPixelIndex(group_x_start + local_x - 1,
                                                    group_y_start + local_y - 1,
                                                    sizeX,
                                                    sizeY)];

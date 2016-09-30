@@ -11,9 +11,9 @@ import java.util.concurrent.Executors;
 
 public class GameOfLifeGUI extends JFrame implements ActionListener {
 
-    private static final int FIELD_SIZE_X = 32;
-    private static final int FIELD_SIZE_Y = 32;
-    private static final int PIXEL_SIZE = 14;
+    private static final int FIELD_SIZE_X = 960;
+    private static final int FIELD_SIZE_Y = 960;
+    private static final int PIXEL_SIZE = 1;
     private static final int IMAGE_SIZE_X = FIELD_SIZE_X * PIXEL_SIZE;
     private static final int IMAGE_SIZE_Y = FIELD_SIZE_Y * PIXEL_SIZE;
     private static final String TITLE = "Game Of Life";
@@ -88,8 +88,10 @@ public class GameOfLifeGUI extends JFrame implements ActionListener {
         boolean gpu = true;
         //960x960, 100 körningar
         //cpu = 32322ms
-        //v1 = 744ms
-        //v2 = 738ms
+        //GPU = 1000+ms (no optimization)
+        //v1 = 744ms (local work groups)
+        //v2 = 733ms (one work item per memory instead of per cell)
+        //v2 = 456ms (remove modulo)
         GameOfLife game;
         if (gpu) {
             //bästaste lösningen https://www.olcf.ornl.gov/tutorials/opencl-game-of-life/
