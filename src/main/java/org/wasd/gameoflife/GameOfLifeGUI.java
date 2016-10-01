@@ -114,6 +114,8 @@ public class GameOfLifeGUI extends JFrame implements ActionListener {
         //without aliveNeighbours count = 363, också ungefär samma <-- boven?
         //Om de ovan blir ungefär samma med char, borde vara boven. För att ta bort dem ger större speedup
         //Så det var de som tog störst extratid vid char
+
+        //Next up, undersök padding och övriga saker som berör performance
         GameOfLife game;
         if (gpu) {
             //bästaste lösningen https://www.olcf.ornl.gov/tutorials/opencl-game-of-life/
