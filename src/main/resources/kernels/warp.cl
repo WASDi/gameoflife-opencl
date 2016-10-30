@@ -1,4 +1,4 @@
-#define SHRINK 1.0f
+#define SHRINK 6.0f
 #define WEIGHT 1.0f
 
 const sampler_t samplerIn =
@@ -37,10 +37,10 @@ __kernel void warp(
     float euclidean_dist = sqrt(euclidean_dist_2);
 
     //GAUSSIAN
-    float weight = WEIGHT * exp2(-euclidean_dist_2) * cos(step*1.0f);
+    float weight = WEIGHT * exp2(-euclidean_dist_2) * cos(step*3.0f);
 
     //SIN^2
-    //float weight = sin(euclidean_dist * 15 - step) * 0.07f + sin(step*0.1f)*0.2f;
+    //float weight = sin(euclidean_dist * 15 - step) * 0.15f + sin(step*0.2f)*0.5f;
     //weight = weight * weight * (0.01f - cos(step)*0.01f);
 
     //SIN(x^x)

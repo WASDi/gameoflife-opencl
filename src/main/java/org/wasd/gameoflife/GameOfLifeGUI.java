@@ -11,8 +11,8 @@ import java.util.concurrent.Executors;
 
 public class GameOfLifeGUI extends JFrame implements ActionListener {
 
-    private static final int FIELD_SIZE_X = 960;
-    private static final int FIELD_SIZE_Y = 960;
+    private static final int FIELD_SIZE_X = 1000;
+    private static final int FIELD_SIZE_Y = 1000;
     private static final int PIXEL_SIZE = 1;
     private static final int IMAGE_SIZE_X = FIELD_SIZE_X * PIXEL_SIZE;
     private static final int IMAGE_SIZE_Y = FIELD_SIZE_Y * PIXEL_SIZE;
@@ -98,14 +98,14 @@ public class GameOfLifeGUI extends JFrame implements ActionListener {
         //best = about 0.45ms per frame, 2200fps
 
         //BENCHMARKs
-        // without global memory read = 332ms
-        // without aliveNeighbours count = 356ms
-        //    without both = 341ms
+        // without global memory read = 332ms (-122ms)
+        // without aliveNeighbours count = 356ms (-98ms)
+        //    without both = 341ms (???)
         //        AND ALSO without global memory write = 150ms
         // without global memory write = 268ms
         // empty step method but render image = 33ms
         // ONLY read global to local = 367ms (-10 without barrier)
-        // ignore read global to local = 307ms
+        // ignore read global to local = 307ms (samma som första?)
 
         //Varför är byte/char långsammare?
         //totalt = +176ms

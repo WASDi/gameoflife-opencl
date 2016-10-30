@@ -15,7 +15,7 @@ int getGlobalPixelIndex(int x, int y, int sizeX, int sizeY) {
     return y*sizeX + x;
 }
 
-int getLocalPixelIndex(int x, int y) {
+__inline int getLocalPixelIndex(int x, int y) {
     return y*LOCAL_ACTUAL_SIZE + x;
 }
 
@@ -37,6 +37,7 @@ __kernel void game_step(
     __local int local_input[LOCAL_ACTUAL_SIZE*LOCAL_ACTUAL_SIZE];
 
     if(x <= sizeX && y <= sizeY){
+    		//coalesced? misaligned?
         local_input[getLocalPixelIndex(local_x, local_y)]
                 = global_input[getGlobalPixelIndex(group_x_start + local_x - 1,
                                                    group_y_start + local_y - 1,
@@ -50,6 +51,7 @@ __kernel void game_step(
     if(local_x != 0 && local_x != FINAL_LOCAL_INDEX &&
        local_y != 0 && local_y != FINAL_LOCAL_INDEX &&
        x < sizeX && y < sizeY){
+       //bank conflicts here? 39.2.3 http://http.developer.nvidia.com/GPUGems3/gpugems3_ch39.html
        int aliveNeighbours = 0;
        int currentStatus = local_input[getLocalPixelIndex(local_x, local_y)];
 
