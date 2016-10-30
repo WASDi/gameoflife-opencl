@@ -25,7 +25,7 @@ public class GameOfLifeCPU implements GameOfLife {
 
     @Override
     public void step() {
-        int stepsPerStep = 1;
+        int stepsPerStep = 1000;
         for (int i = 0; i < stepsPerStep; i++) {
             stepUpdate();
             stepNum++;

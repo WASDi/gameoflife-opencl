@@ -28,6 +28,10 @@ public class KernelArgumentSetter {
         clSetKernelArg(clKernel, argIndex++, Sizeof.cl_int, Pointer.to(new int[]{i}));
     }
 
+    public void setArgShort(short s) {
+        clSetKernelArg(clKernel, argIndex++, Sizeof.cl_short, Pointer.to(new short[]{s}));
+    }
+
     public void setArgMemObject(OpenCLMemObject memObject) {
         clSetKernelArg(clKernel, argIndex++, Sizeof.cl_mem, memObject.getClDataPointer());
     }

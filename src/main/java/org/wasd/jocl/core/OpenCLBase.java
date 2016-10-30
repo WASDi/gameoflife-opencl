@@ -119,6 +119,12 @@ public abstract class OpenCLBase implements OpenCL {
                 Pointer.to(buffer), 0, null, null);
     }
 
+    protected void writeShortBuffer(OpenCLMemObject memObject, short[] buffer) {
+        clEnqueueWriteBuffer(clCommandQueue, memObject.getPrimitiveMemObject(),
+                CL_BLOCKING, 0, buffer.length * Sizeof.cl_short,
+                Pointer.to(buffer), 0, null, null);
+    }
+
     protected void writeByteBuffer(OpenCLMemObject memObject, byte[] buffer) {
         clEnqueueWriteBuffer(clCommandQueue, memObject.getPrimitiveMemObject(),
                 CL_BLOCKING, 0, buffer.length * Sizeof.cl_char,
