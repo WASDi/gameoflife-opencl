@@ -1,4 +1,3 @@
-#define SHRINK 6.0f
 #define WEIGHT 1.0f
 
 const sampler_t samplerIn =

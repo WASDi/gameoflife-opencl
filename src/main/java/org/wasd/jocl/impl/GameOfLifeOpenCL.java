@@ -11,6 +11,8 @@ import org.wasd.jocl.wrappers.OpenCLMemObject;
 import org.wasd.jocl.wrappers.image.OpenCLOutputImage;
 
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 public class GameOfLifeOpenCL extends OpenCLBase implements GameOfLife {
@@ -66,6 +68,14 @@ public class GameOfLifeOpenCL extends OpenCLBase implements GameOfLife {
 
         long endTime = System.nanoTime() - startTime;
         //System.out.printf("Render kernel time: %.2fms\n", endTime / 1e6f);
+    }
+
+    @Override
+    protected Map<String, String> getBuildArguments() {
+        Map<String, String> arguments = new HashMap<>();
+        arguments.put("SIZE_X", String.valueOf(fieldSizeX));
+        arguments.put("SIZE_Y", String.valueOf(fieldSizeY));
+        return arguments;
     }
 
     @Override
@@ -125,14 +135,11 @@ public class GameOfLifeOpenCL extends OpenCLBase implements GameOfLife {
     private void setArgumentsForStepKernel(KernelArgumentSetter argumentSetter) {
         argumentSetter.setArgMemObject(fieldSwapper.getOne());
         argumentSetter.setArgMemObject(fieldSwapper.getTwo());
-        argumentSetter.setArgInt(fieldSizeX);
-        argumentSetter.setArgInt(fieldSizeY);
     }
 
     private void setArgumentsForRenderKernel(KernelArgumentSetter argumentSetter) {
         argumentSetter.setArgMemObject(fieldSwapper.getOne());
         argumentSetter.setArgMemObject(outputImage);
-        argumentSetter.setArgInt(fieldSizeX);
         argumentSetter.setArgInt(pixelSize);
     }
 

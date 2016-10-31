@@ -7,6 +7,8 @@ import org.wasd.jocl.wrappers.image.OpenCLInputImage;
 import org.wasd.jocl.wrappers.image.OpenCLOutputImage;
 
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
+import java.util.Map;
 
 public class WarpImpl extends OpenCLBase {
 
@@ -22,6 +24,13 @@ public class WarpImpl extends OpenCLBase {
         super(KernelFile.WARP, false);
         this.inputHostImage = inputImage;
         this.outputHostImage = outputImage;
+    }
+
+    @Override
+    protected Map<String, String> getBuildArguments() {
+        Map<String, String> arguments = new HashMap<>();
+        arguments.put("SHRINK", "6.0f");
+        return arguments;
     }
 
     @Override

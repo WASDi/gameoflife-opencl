@@ -15,6 +15,7 @@ import org.wasd.jocl.wrappers.image.OpenCLOutputImage;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.jocl.CL.*;
@@ -234,7 +235,7 @@ public abstract class OpenCLBase implements OpenCL {
         cl_program program = clCreateProgramWithSource(clContext, 1, new String[]{kernelFile.load()}, null, null);
 
         System.out.println("Building program...");
-        clBuildProgram(program, 0, null, null, null, null);
+        clBuildProgram(program, 0, null, getBuildArgumentsAsString(), null, null);
         //TODO kolla upp "mad-enable" osv https://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clBuildProgram.html
 
         System.out.println("Creating kernel(s)...");
@@ -244,4 +245,23 @@ public abstract class OpenCLBase implements OpenCL {
             clKernels[i] = clCreateKernel(program, kernelFile.functionNames[i], null);
         }
     }
+
+    private String getBuildArgumentsAsString() {
+        Map<String, String> buildArguments = getBuildArguments();
+        if (getBuildArguments() == null) {
+            return null;
+        }
+        String arguments = "";
+        for (Map.Entry<String, String> arg : buildArguments.entrySet()) {
+            arguments += String.format("-D %s='%s' ", arg.getKey(), arg.getValue());
+        }
+        System.out.println("Using arguments: " + arguments);
+        return arguments;
+    }
+
+    protected Map<String, String> getBuildArguments() {
+        return null;
+    }
+
+
 }
