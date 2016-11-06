@@ -1,11 +1,11 @@
-package org.wasd.gameoflife;
+package org.wasd.gameoflife.initialfieldsetter;
 
 import java.util.Random;
 import java.util.logging.Logger;
 
-public class InitialFieldSetter {
+public class RandomFieldSetter implements InitialFieldSetter {
 
-    private static final Logger logger = Logger.getLogger(InitialFieldSetter.class.getName());
+    private static final Logger logger = Logger.getLogger(RandomFieldSetter.class.getName());
 
     public void setFor(boolean[][] field) {
         long seed = System.nanoTime();

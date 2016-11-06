@@ -3,7 +3,7 @@ package org.wasd.jocl.impl;
 import org.jocl.Sizeof;
 import org.wasd.Swapper;
 import org.wasd.gameoflife.GameOfLife;
-import org.wasd.gameoflife.InitialFieldSetter;
+import org.wasd.gameoflife.initialfieldsetter.InitialFieldSetter;
 import org.wasd.jocl.core.KernelArgumentSetter;
 import org.wasd.jocl.core.KernelFile;
 import org.wasd.jocl.core.OpenCLBase;
@@ -13,19 +13,23 @@ import org.wasd.jocl.wrappers.image.OpenCLOutputImage;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 public class GameOfLifeOpenCL extends OpenCLBase implements GameOfLife {
 
-    private static final boolean V2 = true;
+    private static final boolean CHAR4 = true;
 
     private static final int STEP_KERNEL = 0;
     private static final int RENDER_KERNEL = 1;
     private static final int LOCAL_SIZE = 16;
 
+    private static final int S0 = 0;
+    private static final int S1 = 8;
+    private static final int S2 = 16;
+    private static final int S3 = 24;
+
     private final int fieldSizeX;
     private final int fieldSizeY;
-    private final Optional<InitialFieldSetter> initialFieldSetter;
+    private final InitialFieldSetter initialFieldSetter;
     private final int pixelSize;
 
     private Swapper<OpenCLMemObject> fieldSwapper;
@@ -33,19 +37,18 @@ public class GameOfLifeOpenCL extends OpenCLBase implements GameOfLife {
     private int stepNum = 0;
 
     public GameOfLifeOpenCL(int fieldSizeX, int fieldSizeY, int pixelSize,
-                            Optional<InitialFieldSetter> initialFieldSetter) {
-        super(V2 ? KernelFile.GAME_OF_LIFE_V2 : KernelFile.GAME_OF_LIFE, false);
+                            InitialFieldSetter initialFieldSetter) {
+        super(CHAR4 ? KernelFile.GAME_OF_LIFE_CHAR4 : KernelFile.GAME_OF_LIFE_V2, false);
         this.fieldSizeX = fieldSizeX;
         this.fieldSizeY = fieldSizeY;
         this.initialFieldSetter = initialFieldSetter;
         this.pixelSize = pixelSize;
-        System.out.println("V2 == " + V2);
         init();
     }
 
     @Override
     public void step() {
-        int stepsPerStep = 1000;
+        int stepsPerStep = 1;
         for (int i = 0; i < stepsPerStep; i++) {
             execute(STEP_KERNEL);
         }
@@ -80,18 +83,51 @@ public class GameOfLifeOpenCL extends OpenCLBase implements GameOfLife {
 
     @Override
     protected void afterInitCL() {
+        if (CHAR4) {
+            initChar4();
+        } else {
+            initInt();
+        }
+    }
+
+    private void initInt() {
         OpenCLMemObject input = createMemObject(fieldSizeX, fieldSizeY, Sizeof.cl_int);
         OpenCLMemObject output = createMemObject(fieldSizeX, fieldSizeY, Sizeof.cl_int);
         fieldSwapper = new Swapper<>(input, output);
 
         int[] buffer = new int[fieldSizeX * fieldSizeY];
-        if (initialFieldSetter.isPresent()) {
-            boolean[][] field = new boolean[input.getSizeX()][input.getSizeY()];
-            initialFieldSetter.get().setFor(field);
-            for (int y = 0; y < field.length; y++) {
-                for (int x = 0; x < field[y].length; x++) {
-                    buffer[y * input.getSizeX() + x] = field[x][y] ? 1 : 0;
-                }
+        boolean[][] field = new boolean[input.getSizeX()][input.getSizeY()];
+        initialFieldSetter.setFor(field);
+        for (int y = 0; y < field.length; y++) {
+            for (int x = 0; x < field[y].length; x++) {
+                buffer[y * input.getSizeX() + x] = field[x][y] ? 1 : 0;
+            }
+        }
+        writeIntBuffer(input, buffer);
+    }
+
+    private void initChar4() {
+        if (fieldSizeY % 4 != 0) {
+            System.out.println("char4 kernel not supported where fieldSizeY mod 4 != 0");
+            System.exit(-1);
+        }
+
+        int memorySizeY = fieldSizeY / 4;
+
+        OpenCLMemObject input = createMemObject(fieldSizeX, memorySizeY, Sizeof.cl_char4);
+        OpenCLMemObject output = createMemObject(fieldSizeX, memorySizeY, Sizeof.cl_char4);
+        fieldSwapper = new Swapper<>(input, output);
+
+        int[] buffer = new int[fieldSizeX * memorySizeY];
+        boolean[][] field = new boolean[fieldSizeX][fieldSizeY];
+        initialFieldSetter.setFor(field);
+        for (int y = 0; y < memorySizeY; y++) {
+            for (int x = 0; x < fieldSizeX; x++) {
+                buffer[y * fieldSizeX + x]
+                        = (field[x][y * 4] ? 1 : 0) //  << S0
+                        | (field[x][y * 4 + 1] ? 1 : 0) << S1
+                        | (field[x][y * 4 + 2] ? 1 : 0) << S2
+                        | (field[x][y * 4 + 3] ? 1 : 0) << S3;
             }
         }
         writeIntBuffer(input, buffer);
@@ -99,18 +135,24 @@ public class GameOfLifeOpenCL extends OpenCLBase implements GameOfLife {
 
     @Override
     protected long[][] getGlobalWorkSizePerKernel() {
-        long[] kernel1 = new long[]{fieldSizeX, fieldSizeY};
-        if (V2) {
-            kernel1[0] = globalSizeRequiredForV2(kernel1[0]);
-            kernel1[1] = globalSizeRequiredForV2(kernel1[1]);
-        }
-        long[] kernel2 = new long[]{fieldSizeX, fieldSizeY};
+        int memorySizeY = CHAR4 ? fieldSizeY / 4 : fieldSizeY;
+        long[] kernel1 = new long[]{fieldSizeX, memorySizeY};
+        kernel1[0] = globalSizeRequired14Based(kernel1[0]);
+        kernel1[1] = globalSizeRequired14Based(kernel1[1]);
+        long[] kernel2 = new long[]{fieldSizeX, memorySizeY};
         return new long[][]{kernel1, kernel2};
     }
 
-    private static long globalSizeRequiredForV2(long fieldSize) {
+    static long globalSizeRequired14Based(long fieldSize) {
         int cellsPerLocalGroup = LOCAL_SIZE - 2;
         int localGroupsRequired = (int) Math.ceil((double) fieldSize / cellsPerLocalGroup);
+        int globalSize = localGroupsRequired * LOCAL_SIZE;
+        System.out.println("Work size... " + globalSize);
+        return globalSize;
+    }
+
+    static long globalSizeRequired16Based(long fieldSize) {
+        int localGroupsRequired = (int) Math.ceil((double) fieldSize / LOCAL_SIZE);
         int globalSize = localGroupsRequired * LOCAL_SIZE;
         System.out.println("Work size... " + globalSize);
         return globalSize;

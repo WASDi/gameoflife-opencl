@@ -1,5 +1,7 @@
 package org.wasd.gameoflife;
 
+import org.wasd.gameoflife.initialfieldsetter.InitialFieldSetter;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Optional;

@@ -1,5 +1,7 @@
 package org.wasd.gameoflife;
 
+import org.wasd.gameoflife.initialfieldsetter.CheckerboardFieldSetter;
+import org.wasd.gameoflife.initialfieldsetter.RandomFieldSetter;
 import org.wasd.jocl.impl.GameOfLifeOpenCL;
 
 import javax.swing.*;
@@ -11,10 +13,10 @@ import java.util.concurrent.Executors;
 
 public class GameOfLifeGUI extends JFrame implements ActionListener {
 
-    private static final int FIELD_SIZE = 1000;
+    private static final int FIELD_SIZE = 200;
     private static final int FIELD_SIZE_X = FIELD_SIZE;
     private static final int FIELD_SIZE_Y = FIELD_SIZE;
-    private static final int PIXEL_SIZE = 1;
+    private static final int PIXEL_SIZE = 4;
     private static final int IMAGE_SIZE_X = FIELD_SIZE_X * PIXEL_SIZE;
     private static final int IMAGE_SIZE_Y = FIELD_SIZE_Y * PIXEL_SIZE;
     private static final String TITLE = "Game Of Life";
@@ -43,7 +45,6 @@ public class GameOfLifeGUI extends JFrame implements ActionListener {
         add(button);
 
         setSize(IMAGE_SIZE_X + 20, IMAGE_SIZE_Y + 80);
-        setResizable(false);
         setVisible(true);
     }
 
@@ -120,11 +121,10 @@ public class GameOfLifeGUI extends JFrame implements ActionListener {
         GameOfLife game;
         if (gpu) {
             //bästaste lösningen https://www.olcf.ornl.gov/tutorials/opencl-game-of-life/
-            game = new GameOfLifeOpenCL(FIELD_SIZE_X, FIELD_SIZE_Y, PIXEL_SIZE,
-                    Optional.of(new InitialFieldSetter()));
+            game = new GameOfLifeOpenCL(FIELD_SIZE_X, FIELD_SIZE_Y, PIXEL_SIZE, new RandomFieldSetter());
         } else {
             game = new GameOfLifeCPU(FIELD_SIZE_X, FIELD_SIZE_Y, PIXEL_SIZE,
-                    Optional.of(new InitialFieldSetter()));
+                    Optional.of(new RandomFieldSetter()));
         }
         System.out.println("GPU == " + gpu);
         new GameOfLifeGUI(game);
