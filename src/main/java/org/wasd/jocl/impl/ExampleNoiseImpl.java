@@ -1,12 +1,10 @@
 package org.wasd.jocl.impl;
 
-import org.jocl.Sizeof;
 import org.wasd.jocl.core.KernelArgumentSetter;
 import org.wasd.jocl.core.KernelFile;
 import org.wasd.jocl.core.OpenCLBase;
-import org.wasd.jocl.wrappers.OpenCLMemObject;
+import org.wasd.jocl.wrappers.image.OpenCLOutputImage;
 
-import java.awt.Color;
 import java.awt.image.BufferedImage;
 
 public class ExampleNoiseImpl extends OpenCLBase {
@@ -16,7 +14,8 @@ public class ExampleNoiseImpl extends OpenCLBase {
     private final int sizeX;
     private final int sizeY;
 
-    private OpenCLMemObject outputMemObject;
+    private OpenCLOutputImage outputImage;
+
 
     private float step = 0f;
 
@@ -30,7 +29,8 @@ public class ExampleNoiseImpl extends OpenCLBase {
 
     @Override
     public void afterInitCL() {
-        outputMemObject = createMemObject(sizeX, sizeY, Sizeof.cl_float);
+        outputImage = createOutputImage(outputHostImage);
+
     }
 
     protected long[][] getGlobalWorkSizePerKernel() {
@@ -39,25 +39,18 @@ public class ExampleNoiseImpl extends OpenCLBase {
 
     @Override
     protected void beforeExecute(int kernelIndex) {
-        step += .1f;
+        step += .03f;
 
         KernelArgumentSetter argumentSetter = resetAndGetArgumentSetter(kernelIndex);
-        argumentSetter.setArgMemObject(outputMemObject);
+        argumentSetter.setArgMemObject(outputImage);
         argumentSetter.setArgInt(sizeX);
         argumentSetter.setArgInt(sizeY);
-        argumentSetter.setArgFloat(1f / sizeX);
-        argumentSetter.setArgFloat(1f / sizeY);
         argumentSetter.setArgFloat(step);
     }
 
     @Override
     protected void afterExecute(int kernelIndex) {
-        float output[] = readFloatBuffer(outputMemObject);
-        for (int y = 0; y < sizeY; y++) {
-            for (int x = 0; x < sizeX; x++) {
-                float v = output[x + y * sizeX];
-                outputHostImage.setRGB(x, y, new Color((int) v, (int) v, (int) v).getRGB());
-            }
-        }
+        readImage(outputImage);
     }
+
 }

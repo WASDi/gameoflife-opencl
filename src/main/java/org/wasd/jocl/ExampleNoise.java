@@ -15,13 +15,13 @@ import java.awt.image.BufferedImage;
 
 public class ExampleNoise {
 
-    private static final int SLEEP_PER_FRAME = 100;
+    private static final int SLEEP_PER_FRAME = 20;
 
     private final BufferedImage outputImage;
     private final OpenCL openCLApplication;
 
     public ExampleNoise() {
-        outputImage = new BufferedImage(300, 200, BufferedImage.TYPE_INT_RGB);
+        outputImage = new BufferedImage(1920, 1080, BufferedImage.TYPE_INT_RGB);
 
         JLabel outputLabel = new JLabel(new ImageIcon(outputImage));
 
