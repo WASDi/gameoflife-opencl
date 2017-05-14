@@ -62,8 +62,8 @@ __kernel void game_step(
        aliveNeighbours += local_input[getLocalPixelIndex(local_x, local_y + 1)].s0;
        aliveNeighbours += local_input[getLocalPixelIndex(local_x + 1, local_y + 1)].s0;
 
-       output[y*SIZE_X + x] = 0; //TODO fix this part
-       output[y*SIZE_X + x].s0 = shouldIBeAlive(currentStatus, aliveNeighbours);
+       //output[y*SIZE_X + x] = 0; //TODO fix this part
+       output[y*SIZE_X + x] = shouldIBeAlive(currentStatus, aliveNeighbours);
     }
 }
 

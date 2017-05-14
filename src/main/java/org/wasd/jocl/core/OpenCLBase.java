@@ -75,7 +75,7 @@ public abstract class OpenCLBase implements OpenCL {
         Optional<cl_event> kernelEvent = getEventIfUseProfiling();
 
         clEnqueueNDRangeKernel(clCommandQueue, clKernels[kernelIndex], globalWorkSizePerKernel[kernelIndex].length, null,
-                globalWorkSizePerKernel[kernelIndex], localWorkSizePerKernel[kernelIndex], 0, null, kernelEvent.orElse(null));
+                               globalWorkSizePerKernel[kernelIndex], localWorkSizePerKernel[kernelIndex], 0, null, kernelEvent.orElse(null));
 
         printTimingIfPresent("kernel_" + kernelIndex, kernelEvent);
 
@@ -96,10 +96,15 @@ public abstract class OpenCLBase implements OpenCL {
         return OpenCLImageFactory.createOutputImage(clContext, inputImage);
     }
 
-    protected OpenCLMemObject createMemObject(int sizeX, int sizeY, int sizeof) {
-        cl_mem primitiveMemObject = clCreateBuffer(clContext, CL_MEM_READ_WRITE, sizeX * sizeY * sizeof, null, null);
+    protected OpenCLMemObject createMemObject(int sizeX, int sizeY, int sizeofEachElement) {
+        cl_mem primitiveMemObject = clCreateBuffer(clContext,
+                                                   CL_MEM_READ_WRITE,
+                                                   sizeX * sizeY * sizeofEachElement,
+                                                   null,
+                                                   null);
         return new OpenCLMemObject(sizeX, sizeY, primitiveMemObject);
     }
+
     //END creators
     //BEGIN IO
     protected void readImage(OpenCLOutputImage outputImage) {
@@ -116,20 +121,20 @@ public abstract class OpenCLBase implements OpenCL {
 
     protected void writeIntBuffer(OpenCLMemObject memObject, int[] buffer) {
         clEnqueueWriteBuffer(clCommandQueue, memObject.getPrimitiveMemObject(),
-                CL_BLOCKING, 0, buffer.length * Sizeof.cl_int,
-                Pointer.to(buffer), 0, null, null);
+                             CL_BLOCKING, 0, buffer.length * Sizeof.cl_int,
+                             Pointer.to(buffer), 0, null, null);
     }
 
     protected void writeShortBuffer(OpenCLMemObject memObject, short[] buffer) {
         clEnqueueWriteBuffer(clCommandQueue, memObject.getPrimitiveMemObject(),
-                CL_BLOCKING, 0, buffer.length * Sizeof.cl_short,
-                Pointer.to(buffer), 0, null, null);
+                             CL_BLOCKING, 0, buffer.length * Sizeof.cl_short,
+                             Pointer.to(buffer), 0, null, null);
     }
 
     protected void writeByteBuffer(OpenCLMemObject memObject, byte[] buffer) {
         clEnqueueWriteBuffer(clCommandQueue, memObject.getPrimitiveMemObject(),
-                CL_BLOCKING, 0, buffer.length * Sizeof.cl_char,
-                Pointer.to(buffer), 0, null, null);
+                             CL_BLOCKING, 0, buffer.length * Sizeof.cl_char,
+                             Pointer.to(buffer), 0, null, null);
     }
 
     protected void writeImage(OpenCLMemObject memObject, BufferedImage newImageData) {
@@ -154,8 +159,21 @@ public abstract class OpenCLBase implements OpenCL {
 
         int[] buffer = new int[memObject.getSizeX() * memObject.getSizeY()];
         clEnqueueReadBuffer(clCommandQueue, memObject.getPrimitiveMemObject(),
-                CL_BLOCKING, 0, buffer.length * Sizeof.cl_int,
-                Pointer.to(buffer), 0, null, readEvent.orElse(null));
+                            CL_BLOCKING, 0, buffer.length * Sizeof.cl_int,
+                            Pointer.to(buffer), 0, null, readEvent.orElse(null));
+
+        printTimingIfPresent("read", readEvent);
+
+        return buffer;
+    }
+
+    protected float[] readFloatBuffer(OpenCLMemObject memObject) {
+        Optional<cl_event> readEvent = getEventIfUseProfiling();
+
+        float[] buffer = new float[memObject.getSizeX() * memObject.getSizeY()];
+        clEnqueueReadBuffer(clCommandQueue, memObject.getPrimitiveMemObject(),
+                            CL_BLOCKING, 0, buffer.length * Sizeof.cl_float,
+                            Pointer.to(buffer), 0, null, readEvent.orElse(null));
 
         printTimingIfPresent("read", readEvent);
 
@@ -178,7 +196,7 @@ public abstract class OpenCLBase implements OpenCL {
             long duration = Util.timeForClEvent(event.get());
             //TODO more benchmarks
             System.out.println("Event " + name + ": \tTime   : " +
-                    String.format("%8.3f", duration / 1e6) + " ms");
+                                       String.format("%8.3f", duration / 1e6) + " ms");
         }
     }
 
@@ -214,7 +232,7 @@ public abstract class OpenCLBase implements OpenCL {
 
         int imageSupport[] = new int[1];
         clGetDeviceInfo(device, CL.CL_DEVICE_IMAGE_SUPPORT,
-                Sizeof.cl_int, Pointer.to(imageSupport), null);
+                        Sizeof.cl_int, Pointer.to(imageSupport), null);
         System.out.println("Images supported: " + (imageSupport[0] == 1));
         if (imageSupport[0] == 0) {
             System.out.println("Images are not supported");

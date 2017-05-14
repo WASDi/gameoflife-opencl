@@ -13,10 +13,10 @@ import java.util.concurrent.Executors;
 
 public class GameOfLifeGUI extends JFrame implements ActionListener {
 
-    private static final int FIELD_SIZE = 200;
+    private static final int FIELD_SIZE = 1000;
     private static final int FIELD_SIZE_X = FIELD_SIZE;
     private static final int FIELD_SIZE_Y = FIELD_SIZE;
-    private static final int PIXEL_SIZE = 4;
+    private static final int PIXEL_SIZE = 1;
     private static final int IMAGE_SIZE_X = FIELD_SIZE_X * PIXEL_SIZE;
     private static final int IMAGE_SIZE_Y = FIELD_SIZE_Y * PIXEL_SIZE;
     private static final String TITLE = "Game Of Life";
@@ -28,7 +28,7 @@ public class GameOfLifeGUI extends JFrame implements ActionListener {
     public GameOfLifeGUI(GameOfLife game) {
         super(TITLE);
         this.game = game;
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLayout(null);
 
         image = new BufferedImage(IMAGE_SIZE_X, IMAGE_SIZE_Y, BufferedImage.TYPE_INT_RGB); //TODO other type?

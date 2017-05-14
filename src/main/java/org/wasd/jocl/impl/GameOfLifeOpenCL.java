@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class GameOfLifeOpenCL extends OpenCLBase implements GameOfLife {
 
-    private static final boolean CHAR4 = true;
+    private static final boolean CHAR4 = false;
 
     private static final int STEP_KERNEL = 0;
     private static final int RENDER_KERNEL = 1;
@@ -48,7 +48,7 @@ public class GameOfLifeOpenCL extends OpenCLBase implements GameOfLife {
 
     @Override
     public void step() {
-        int stepsPerStep = 1;
+        int stepsPerStep = 1000;
         for (int i = 0; i < stepsPerStep; i++) {
             execute(STEP_KERNEL);
         }

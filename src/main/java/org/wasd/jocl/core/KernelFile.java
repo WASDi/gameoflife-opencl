@@ -18,7 +18,9 @@ public enum KernelFile {
     GAME_OF_LIFE("game_of_life_local.cl", "game_step", "render_image"),
     GAME_OF_LIFE_V2("game_of_life_local_v2.cl", "game_step", "render_image"),
     GAME_OF_LIFE_CHAR4("game_of_life_local_char4.cl", "game_step", "render_image"),
-    ROTATE_IMAGE("rotateImage.cl", "rotateImage");
+    ROTATE_IMAGE("rotateImage.cl", "rotateImage"),
+    SANDBOX("sandbox.cl", "sandbox"),
+    EXAMPLE_NOISE("Noise.cl", "Noise3dTest");
 
     public final String fileName;
     public final String[] functionNames;
