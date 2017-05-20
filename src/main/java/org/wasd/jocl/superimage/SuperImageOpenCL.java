@@ -1,25 +1,29 @@
-package org.wasd.jocl.impl;
+package org.wasd.jocl.superimage;
 
 import org.wasd.jocl.core.KernelArgumentSetter;
 import org.wasd.jocl.core.KernelFile;
 import org.wasd.jocl.core.OpenCLBase;
+import org.wasd.jocl.wrappers.image.OpenCLInputImage;
 import org.wasd.jocl.wrappers.image.OpenCLOutputImage;
 
 import java.awt.image.BufferedImage;
 
-public class ExampleNoiseImpl extends OpenCLBase {
+public class SuperImageOpenCL extends OpenCLBase {
 
+    private final BufferedImage inputHostImage;
     private final BufferedImage outputHostImage;
 
     private final int sizeX;
     private final int sizeY;
 
+    private OpenCLInputImage inputImage;
     private OpenCLOutputImage outputImage;
 
     public float step = 0f;
 
-    public ExampleNoiseImpl(BufferedImage outputImage) {
-        super(KernelFile.EXAMPLE_NOISE, false);
+    public SuperImageOpenCL(BufferedImage inputImage, BufferedImage outputImage) {
+        super(KernelFile.SUPER_IMAGE, false);
+        this.inputHostImage = inputImage;
         this.outputHostImage = outputImage;
 
         this.sizeX = outputHostImage.getWidth();
@@ -28,6 +32,7 @@ public class ExampleNoiseImpl extends OpenCLBase {
 
     @Override
     public void afterInitCL() {
+        inputImage = createInputImage(inputHostImage);
         outputImage = createOutputImage(outputHostImage);
     }
 
@@ -38,6 +43,7 @@ public class ExampleNoiseImpl extends OpenCLBase {
     @Override
     protected void beforeExecute(int kernelIndex) {
         KernelArgumentSetter argumentSetter = resetAndGetArgumentSetter(kernelIndex);
+        argumentSetter.setArgMemObject(inputImage);
         argumentSetter.setArgMemObject(outputImage);
         argumentSetter.setArgInt(sizeX);
         argumentSetter.setArgInt(sizeY);

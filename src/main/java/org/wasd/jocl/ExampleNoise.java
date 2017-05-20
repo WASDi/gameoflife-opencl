@@ -1,8 +1,6 @@
 package org.wasd.jocl;
 
-import org.wasd.jocl.core.OpenCL;
 import org.wasd.jocl.impl.ExampleNoiseImpl;
-import org.wasd.jocl.impl.SandboxImpl;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -18,7 +16,7 @@ public class ExampleNoise {
     private static final int SLEEP_PER_FRAME = 20;
 
     private final BufferedImage outputImage;
-    private final OpenCL openCLApplication;
+    private final ExampleNoiseImpl openCLApplication;
 
     public ExampleNoise() {
         outputImage = new BufferedImage(1920, 1080, BufferedImage.TYPE_INT_RGB);
@@ -43,6 +41,7 @@ public class ExampleNoise {
         //ExecutorService?
         Thread thread = new Thread(() -> {
             while (true) {
+                openCLApplication.step += .03f;
                 openCLApplication.execute();
                 outputComponent.repaint();
 
