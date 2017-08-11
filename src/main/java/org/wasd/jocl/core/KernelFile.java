@@ -21,7 +21,8 @@ public enum KernelFile {
     ROTATE_IMAGE("rotateImage.cl", "rotateImage"),
     SANDBOX("sandbox.cl", "sandbox"),
     EXAMPLE_NOISE("Noise.cl", "Noise3dTest"),
-    SUPER_IMAGE("super_image.cl", "SuperImage");
+    SUPER_IMAGE("super_image.cl", "SuperImage"),
+    PICK_RANDOM_PIXEL_RECURSIVELY("pick_random_pixel_recursively.cl", "myCoolFunction");
 
     public final String fileName;
     public final String[] functionNames;
