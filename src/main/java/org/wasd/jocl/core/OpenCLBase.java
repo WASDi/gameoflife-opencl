@@ -6,11 +6,22 @@
 
 package org.wasd.jocl.core;
 
-import org.jocl.*;
+import org.jocl.CL;
+import org.jocl.Pointer;
+import org.jocl.Sizeof;
+import org.jocl.cl_command_queue;
+import org.jocl.cl_context;
+import org.jocl.cl_context_properties;
+import org.jocl.cl_device_id;
+import org.jocl.cl_event;
+import org.jocl.cl_kernel;
+import org.jocl.cl_mem;
+import org.jocl.cl_platform_id;
+import org.jocl.cl_program;
 import org.wasd.Util;
+import org.wasd.jocl.wrappers.OpenCLMemObject;
 import org.wasd.jocl.wrappers.image.OpenCLImageFactory;
 import org.wasd.jocl.wrappers.image.OpenCLInputImage;
-import org.wasd.jocl.wrappers.OpenCLMemObject;
 import org.wasd.jocl.wrappers.image.OpenCLOutputImage;
 
 import java.awt.image.BufferedImage;
@@ -122,6 +133,12 @@ public abstract class OpenCLBase implements OpenCL {
     protected void writeIntBuffer(OpenCLMemObject memObject, int[] buffer) {
         clEnqueueWriteBuffer(clCommandQueue, memObject.getPrimitiveMemObject(),
                              CL_BLOCKING, 0, buffer.length * Sizeof.cl_int,
+                             Pointer.to(buffer), 0, null, null);
+    }
+
+    protected void writeFloatBuffer(OpenCLMemObject memObject, float[] buffer) {
+        clEnqueueWriteBuffer(clCommandQueue, memObject.getPrimitiveMemObject(),
+                             CL_BLOCKING, 0, buffer.length * Sizeof.cl_float,
                              Pointer.to(buffer), 0, null, null);
     }
 

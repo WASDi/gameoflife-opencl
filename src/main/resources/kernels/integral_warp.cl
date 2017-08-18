@@ -129,10 +129,14 @@ IntegralWarp(
     __write_only image2d_t outputImage,
     int                    iImageWidth,
     int                    iImageHeight,
-    float                  slice
+    float                  slice,
+    __global float2*       displacementArr
 ){
     int x = get_global_id(0);
     int y = get_global_id(1);
+
+    int global_id = y * get_global_size(0) + x;
+    float2 displacement = displacementArr[global_id];
 
     float dx = abs(x-iImageWidth/2);
     float dy = abs(y-iImageHeight/2);
@@ -153,14 +157,17 @@ IntegralWarp(
     offset = offset < 0 ? 0 : offset;
 
     values = values * AMPLITUDE;
+    displacement += values/5;
 
     // read displaced pixel
     float2 posInF = {x, y};
-    posInF += values;
+    posInF += displacement;
     uint3 rgbInTwist = read_imageui(sourceImage, SAMPLER, posInF).xyz;
     float3 rgbInTwistF = convert_float3(rgbInTwist);
 
     uint4 pixelOut = (uint4)(convert_uint3_rte(rgbInTwistF.xyz), 255);
     int2 posOut = {x, y};
     write_imageui(outputImage, posOut, pixelOut);
+
+    displacementArr[global_id] = displacement;
 }
