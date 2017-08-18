@@ -22,6 +22,7 @@ public enum KernelFile {
     SANDBOX("sandbox.cl", "sandbox"),
     EXAMPLE_NOISE("Noise.cl", "Noise3dTest"),
     SUPER_IMAGE("super_image.cl", "SuperImage"),
+    INTEGRAL_WARP("integral_warp.cl", "IntegralWarp"),
     PICK_RANDOM_PIXEL_RECURSIVELY("pick_random_pixel_recursively.cl", "myCoolFunction");
 
     public final String fileName;
