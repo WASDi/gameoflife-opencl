@@ -123,6 +123,9 @@ const sampler_t SAMPLER = CLK_FILTER_LINEAR | CLK_NORMALIZED_COORDS_FALSE | CLK_
 #define AMPLITUDE 10.0f
 #define INV_SQRT2 1.0f/sqrt(2.0f)
 
+#define FALL_FACTOR 0.1f
+#define FALL_DISPLACEMENT 0.0f
+
 kernel void
 IntegralWarp(
     __read_only  image2d_t sourceImage,
@@ -142,8 +145,9 @@ IntegralWarp(
     float dy = abs(y-iImageHeight/2);
     float distToMid = length((float2){dx, dy});
 
-    float fx = 128 * (float)x * ZOOM / iImageWidth;
-    float fy = 72 * (float)y * ZOOM / iImageHeight;
+    float2 fall = FALL_DISPLACEMENT * displacement;
+    float fx = fall.x + 128 * (float)x * ZOOM / iImageWidth;
+    float fy = fall.y + 72 * (float)y * ZOOM / iImageHeight;
     float fz = slice - distToMid/100.0f;
 
     // -1 to 1
@@ -157,7 +161,7 @@ IntegralWarp(
     offset = offset < 0 ? 0 : offset;
 
     values = values * AMPLITUDE;
-    displacement += values/5;
+    displacement += values*FALL_FACTOR;
 
     // read displaced pixel
     float2 posInF = {x, y};

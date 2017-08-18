@@ -16,7 +16,7 @@ public class IntegralWarp {
 
     private final JLabel outputLabel;
 
-    private static final int SLEEP_PER_FRAME = 50;
+    private static final int SLEEP_PER_FRAME = 20;
 
 
     public IntegralWarp() {
