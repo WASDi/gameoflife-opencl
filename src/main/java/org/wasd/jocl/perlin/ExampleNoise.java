@@ -1,6 +1,4 @@
-package org.wasd.jocl;
-
-import org.wasd.jocl.impl.ExampleNoiseImpl;
+package org.wasd.jocl.perlin;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;

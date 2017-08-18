@@ -1,4 +1,4 @@
-package org.wasd.jocl.impl;
+package org.wasd.jocl.perlin;
 
 import org.wasd.jocl.core.KernelArgumentSetter;
 import org.wasd.jocl.core.KernelFile;

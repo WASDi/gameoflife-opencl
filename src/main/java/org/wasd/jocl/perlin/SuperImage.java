@@ -1,4 +1,4 @@
-package org.wasd.jocl.superimage;
+package org.wasd.jocl.perlin;
 
 import org.wasd.Util;
 
